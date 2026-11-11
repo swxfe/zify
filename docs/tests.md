@@ -10,11 +10,17 @@ make test
 
 Запускает локальные проверки: синтаксис, ShellCheck, модульные и интеграционные тесты, HTTP/TLS и самопроверки обвязки эмулятора. Полный прогон OpenWrt выполняется отдельно.
 
-| Команда | Что проверяет |
-| --- | --- |
-| `make check` | ShellCheck, синтаксис shell и Python, компиляция ucode, запуск CLI |
-| `make test` | Весь локальный набор |
-| `make test-matrix` | Тесты и сборку с ucode из OpenWrt 24.10, 25.12 и upstream |
+Только статические проверки и запуск CLI:
+
+```sh
+make check
+```
+
+Тесты и сборка с ucode из OpenWrt 24.10, 25.12 и upstream:
+
+```sh
+make test-matrix
+```
 
 Независимые наборы выполняются параллельно, максимум в четыре процесса по умолчанию. Чтобы снизить нагрузку:
 
@@ -37,20 +43,45 @@ ZIFY_TEST_JOBS=2 make test
 
 ```sh
 make emulator-setup
+```
+
+```sh
 E2E_WORKERS=4 make test-e2e
 ```
 
-24 сценария распределяются между четырьмя эмуляторами Cudy WR3000P. У каждого своя копия Flash и состояние роутера. Для последовательного запуска задайте `E2E_WORKERS=1`.
+24 сценария распределяются между четырьмя эмуляторами Cudy WR3000P. У каждого своя копия Flash и состояние роутера. Последовательный запуск:
+
+```sh
+E2E_WORKERS=1 make test-e2e
+```
 
 ## Отдельные наборы
 
 ```sh
 sh tests/unit/run.sh
+```
+
+```sh
 sh tests/integration/run.sh
+```
+
+```sh
 sh tests/integration/packages.sh
+```
+
+```sh
 sh tests/safety/transactions.sh
+```
+
+```sh
 sh tests/safety/uninstall.sh
+```
+
+```sh
 sh tests/http/run.sh
+```
+
+```sh
 sh tests/e2e/run.sh selftest
 ```
 

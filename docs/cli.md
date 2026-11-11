@@ -1,14 +1,30 @@
 # CLI zify
 
-Формат: `zify <команда> [аргументы]`. Полная справка — `zify --help`.
+Формат: `zify <команда> [аргументы]`. Полная справка:
+
+```sh
+zify --help
+```
 
 ## Сервис и обновления
 
 ```sh
 zify status
+```
+
+```sh
 zify service restart
+```
+
+```sh
 zify service enable
+```
+
+```sh
 zify manager-check
+```
+
+```sh
 zify manager-update
 ```
 
@@ -18,9 +34,21 @@ zify manager-update
 
 ```sh
 zify source list flowseal
+```
+
+```sh
 zify source list manager
+```
+
+```sh
 zify source select flowseal general_alt9
+```
+
+```sh
 zify source select manager Gv1
+```
+
+```sh
 zify fake list
 ```
 
@@ -30,10 +58,25 @@ zify fake list
 
 ```sh
 zify config get DISABLE_IPV6
+```
+
+```sh
 zify config set DISABLE_IPV6 0
+```
+
+```sh
 zify devices list
+```
+
+```sh
 zify network status
+```
+
+```sh
 zify network quic on
+```
+
+```sh
 zify network offload software
 ```
 
@@ -47,4 +90,8 @@ zify network offload software
 - `-c ФАЙЛ`, `--config ФАЙЛ` — другой конфиг zify, по умолчанию `/etc/config/zify`.
 - `-h`, `--help` — справка; `-V`, `--version` — версия.
 
-Пример для скрипта: `zify service restart --yes`.
+Пример для скрипта:
+
+```sh
+zify service restart --yes
+```

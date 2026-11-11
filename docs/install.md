@@ -12,7 +12,11 @@ wget -O /tmp/zify-install.sh https://raw.githubusercontent.com/swxfe/zify/main/t
 
 Установщик проверит зависимости и место, запросит согласие на недостающие пакеты и откроет меню. Сам Zapret и LuCI установите через **«Установка / обновление / удаление» → «Установить Zapret»**.
 
-Для повторного запуска — `zify`.
+Для повторного запуска:
+
+```sh
+zify
+```
 
 ## Из локальных файлов
 
@@ -20,6 +24,9 @@ wget -O /tmp/zify-install.sh https://raw.githubusercontent.com/swxfe/zify/main/t
 
 ```sh
 sh /tmp/zify.sh --yes manager-install /tmp/zify-assets.tar.gz
+```
+
+```sh
 zify
 ```
 
@@ -37,6 +44,9 @@ zify
 
 ```sh
 sudo apt-get update
+```
+
+```sh
 sudo apt-get install -y git build-essential cmake ninja-build pkg-config libjson-c-dev libpcre2-dev libmd-dev libssl-dev shellcheck curl unzip python3 make
 ```
 
@@ -44,7 +54,13 @@ sudo apt-get install -y git build-essential cmake ninja-build pkg-config libjson
 
 ```sh
 sh tools/setup-dev.sh
+```
+
+```sh
 export PATH="$HOME/.local/share/zify-dev/openwrt-25.12/bin:$PATH"
+```
+
+```sh
 make dist
 ```
 
@@ -54,9 +70,16 @@ make dist
 
 ```sh
 python3 tools/build-assets.py --refresh-lock --output dist/zify-assets.tar.gz
+```
+
+```sh
 make dist
 ```
 
-`make clean` удаляет результаты сборки и временные каталоги. Запускайте отдельно от остальных целей.
+Удалить результаты сборки и временные каталоги (запускайте отдельно от остальных целей):
+
+```sh
+make clean
+```
 
 [CLI-команды](cli.md) · [Тесты и эмулятор OpenWrt](tests.md)
