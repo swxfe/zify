@@ -1,0 +1,15 @@
+{
+  "format": 1,
+  "bundle_format": 2,
+  "version": "1.0",
+  "code": {
+    "path": "dist/zify.sh",
+    "size": 184991,
+    "sha256": "3a94d66912a2d42e7b2322d740c51c9e2730c465bdc6aac2384c54225f17a537"
+  },
+  "assets": {
+    "path": "dist/zify-assets.tar.gz",
+    "size": 39978,
+    "sha256": "1211ff532264f85d9087784f95c95ffa88f8e9204c4a88c5c99605ce54ffad69"
+  }
+}

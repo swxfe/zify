@@ -1,0 +1,20 @@
+# Generated files
+/dist/*
+!/dist/zify.sh
+!/dist/zify-assets.tar.gz
+!/dist/release.json
+!/dist/SHA256SUMS
+/.test-tmp/
+/.build-tmp/
+/.emulator/
+/uc.out
+
+# Python
+__pycache__/
+*.pyc
+
+# Local editor and OS files
+/.vscode/
+/.idea/
+.DS_Store
+Thumbs.db

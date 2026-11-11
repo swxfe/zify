@@ -1,0 +1,6 @@
+config zify 'main'
+	option root '/'
+	option connect_timeout '4'
+	option request_timeout '10'
+	option max_file_bytes '2097152'
+	option max_strategies '256'

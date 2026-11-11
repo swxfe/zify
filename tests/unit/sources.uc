@@ -1,0 +1,57 @@
+import { equal, rejects, count } from '../support/assertions.uc';
+import { label_strategy, strategy_sections, parse_catalog } from 'strategies';
+import { flowseal_strategy, flowseal_groups, manager_catalog } from '../../tools/lib/import-strategies.uc';
+import { inspect_strategy } from 'status';
+import { read } from 'common';
+import { fixture } from '../setup/unit.uc';
+
+export function run() {
+    let f = fixture();
+    let home = f.home, ctx = f.ctx, list = f.list, v7 = f.v7, converted = f.converted;
+    // Catalog matching remains useful for identifying sections; provenance uses state.json.
+    function catalog_identity(body, list) {
+        let sections = inspect_strategy(body, list);
+        if (!length(sections)) return 'не выбрана';
+        if (!length(filter(sections, (s) => s.name != null))) return 'кастомная';
+        return length(sections) ? join(' + ', map(sections, (s) => s.name == null ? 'кастомный блок' : s.name + (s.changed ? ' (изменена)' : ''))) : 'не выбрана';
+    }
+    assert(index(converted.body, '--wf-') == -1 && index(converted.body, '%BIN%') == -1 &&
+           index(converted.body, '--ipset=') == -1, 'strip Windows-only controls'); count();
+    assert(index(converted.body, '--hostlist=/opt/zapret/ipset/zapret-hosts-google.txt') != -1,
+           'map Google hostlist'); count();
+    assert(index(converted.body, '--dpi-desync-fake-discord=/opt/zapret/fakes/ACTIVE_DISCORD_UDP.bin') != -1,
+        'preserve exact Flowseal active fake'); count();
+    assert(index(converted.body, ctx.sources.tcp_ports) != -1, 'resolve game ports'); count();
+    let general = label_strategy('general', converted.body), flow_catalog = [{ name: 'general', body: converted.body }];
+    equal(length(split(general, '#general\n')), 2, 'one Flowseal heading for all internal profiles');
+    equal(length(strategy_sections(general)), 1, 'Flowseal profiles stay together');
+    equal(catalog_identity(general, flow_catalog), 'general', 'identify whole Flowseal preset');
+    equal(catalog_identity(general + '--new\n--filter-tcp=1234\n', flow_catalog), 'general (изменена)', 'modified Flowseal section');
+    equal(catalog_identity(general + '--new\n' + v7, [...flow_catalog, ...list]), 'general + v7', 'Flowseal and builtin sections');
+    equal(label_strategy('general_alt', general), '#general_alt\n' + converted.body, 'relabelling emits only one heading');
+    rejects(() => flowseal_strategy(ctx, '@echo off\necho hello'), 'missing winws command');
+    rejects(() => flowseal_strategy(ctx, 'start x winws.exe --filter-tcp=%GameFilterTCP% --x=$(id)'), 'BAT command substitution');
+    rejects(() => flowseal_strategy(ctx, 'start x winws.exe --filter-tcp=%GameFilterTCP% --x=%UNKNOWN%'), 'unknown BAT variable');
+    let groups = flowseal_groups(converted.body);
+    equal(length(groups), 4, 'all Flowseal groups are available');
+    equal(length(split(groups.games, '--new\n')), 2, 'both gaming protocols stay together');
+    equal(length(split(groups.discord, '--new\n')), 1, 'Discord UDP profile is retained');
+    assert(index(groups.youtube, '--hostlist=/opt/zapret/ipset/zapret-hosts-google.txt') != -1,
+        'YouTube group keeps hostlist'); count();
+    assert(index(groups.base, '--filter-tcp=80,443') != -1, 'base group keeps TCP filter'); count();
+    equal(join('--new\n', [groups.discord, groups.youtube, split(groups.games, '--new\n')[0], groups.base,
+        split(groups.games, '--new\n')[1]]), converted.body, 'group extraction preserves every profile and option');
+    rejects(() => flowseal_groups('--filter-tcp=1234\n'), 'unknown group fails closed');
+    let imported = manager_catalog(ctx, read(home + '/tests/fixtures/manager.txt', 65536),
+        read(home + '/tests/fixtures/youtube.txt', 65536));
+    let imported_names = map(parse_catalog(ctx, imported), (s) => s.name);
+    assert(index(imported_names, 'v99') != -1 && index(imported_names, 'Dv99') != -1 &&
+           index(imported_names, 'Yv99') != -1 && index(imported_names, 'Gv1') != -1,
+           'migrate upstream manager catalogs as data'); count();
+    rejects(() => manager_catalog(ctx, 'echo bad', '#Yv99\n--x=1'), 'missing manager strategies');
+    let spaced_import = manager_catalog(ctx, "Dv99=$'--filter-tcp=443\\n--dpi-desync-autottl 2:2-12'", '#Yv99\n--x=1');
+    equal(parse_catalog(ctx, spaced_import)[0].body, '--filter-tcp=443\n--dpi-desync-autottl=2:2-12\n', 'upstream separate option value is canonicalized safely');
+    let spaced_youtube = manager_catalog(ctx, "Dv99=$'--filter-tcp=443'", '#Yv99\n--filter-tcp=443\n--dpi-desync-autottl 2:2-12');
+    equal(parse_catalog(ctx, spaced_youtube)[1].body, '--filter-tcp=443\n--dpi-desync-autottl=2:2-12\n', 'upstream YouTube catalog canonicalizes separate values');
+    rejects(() => manager_catalog(ctx, "Dv99=$'--filter-tcp=443\\n--x $(id)'", '#Yv99\n--x=1'), 'upstream separate values still reject shell injection');
+};
